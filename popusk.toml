@@ -1,0 +1,2 @@
+document_extension = ["pdf", "md", "txt", "html"]
+viewer = ["zathura"]
