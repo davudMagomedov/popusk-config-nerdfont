@@ -124,6 +124,36 @@ function list_output_narrow(libentities, context)
 	return res
 end
 
+function open_libentity(libentity, context)
+	os.execute("bash -c 'zathura " .. libentity.path .. "'")
+
+	io.write("Write progress update: "):flush()
+
+	if libentity.etype == "document" then
+		local progress_update_string = io.read("l")
+
+		local action = progress_update_string:sub(1, 1)
+		local value = tonumber(progress_update_string:sub(2, -1), 10)
+
+		if action == "+" then
+			return {
+				passed = libentity.progress.passed + value,
+				ceiling = libentity.progress.ceiling,
+			}
+		elseif action == "-" then
+			return {
+				passed = libentity.progress.passed - value,
+				ceiling = libentity.progress.ceiling,
+			}
+		elseif action == "=" then
+			return {
+				passed = value,
+				ceiling = libentity.progress.ceiling,
+			}
+		end
+	end
+end
+
 function list_output_wide(libentities, context)
 	local res = ""
 
@@ -133,4 +163,21 @@ function list_output_wide(libentities, context)
 	end
 
 	return res
+end
+
+local function contains_value(array, expected_value) --> boolean
+	local contains = false
+	for _, value in ipairs(array) do
+		if value == expected_value then
+			contains = true
+			break
+		end
+	end
+
+	return contains
+end
+
+local document_extensions = { "pdf", "html", "md", "epub" }
+function is_document(extension) --> boolean
+	return contains_value(document_extensions, extension)
 end
